@@ -1,5 +1,10 @@
 # python3
 
+# FARE ATTENZIONE ALLE COLONNE CON VALORI VUOTI.
+# il programma si interrompe, e per ora lo lascio così
+# in quanto quelle colonne non mi interessano. 
+# Ci sto lavorando.
+
 from urllib import request
 import matplotlib.pyplot as plt
 import datetime
@@ -14,9 +19,9 @@ scarica_ultima_versione_dati = False
 stampa_dati_nazionale        = True
 stampa_grafico_nazionale     = True
 
-stampa_dati_regioni          = True
-stampa_grafico_regioni       = True
-grafici_regioni_singole      = True
+stampa_dati_regioni          = False
+stampa_grafico_regioni       = False
+grafici_regioni_singole      = False
 
 
 
@@ -27,15 +32,18 @@ def to_date(s):
     return datetime.datetime.strptime(s, '%Y-%m-%d').date()
 
 # stampa i dati relativi al singolo giorno
-def stampa_riga(data, casi_oggi, variaz_casi, andamento):
-    print(data, " | ", casi_oggi, " | " + str(variaz_casi), " | ", andamento )
+def stampa_dati(date, dati, colonne):
+    print("data", colonne)
+    dati_t = list(map(list, zip(*dati))) # trasposta dei dati, per facilità di stampa
+    for i in range(len(date)):
+        print(date[i], dati_t[i])
 
 # restituisce gli array con le date singoli e con i dati per i grafici
 def get_array_dati(lines, indici_colonne, stampa_dati):
     n = len(indici_colonne)
     dati = [[] for x in range(n)]
     date = []
-    
+
     for line in lines[1:]:
         splitted_line = line.split(",")
 
@@ -44,6 +52,23 @@ def get_array_dati(lines, indici_colonne, stampa_dati):
         for i in range(n):
             dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
 
+    '''
+    for line in lines[1:]:
+        splitted_line = line.split(",")
+        
+        # controlla se in questa riga ci sono colonne con valori nulli
+        salta_questa_linea = False
+        for i in range(n):
+            elem = splitted_line[indici_colonne[i]]
+            if elem == "":
+                salta_questa_linea = True
+
+        if not salta_questa_linea:
+            date.append(to_date(splitted_line[0].split("T")[0]))
+            
+            for i in range(n):
+                dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
+    '''
     return date, dati
 
 
@@ -88,9 +113,7 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
         date, dati = get_array_dati(lines, indici_colonne, stampa_dati_nazionale)
 
         if stampa_dati_nazionale:
-            dati_t = list(map(list, zip(*dati))) # trasposta dei dati, per facilità di stampa
-            for i in range(len(date)):
-                print(date[i], dati_t[i])
+            stampa_dati(date, dati, [nomi_colonne_nazionale[i] for i in indici_colonne])
 
         if stampa_grafico_nazionale: 
             fig = plt.figure(0)
@@ -176,12 +199,8 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             indici_colonne = [17]
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
 
-            dati_t = list(map(list, zip(*dati)))
-
             if stampa_dati_regioni:
-                dati_t = list(map(list, zip(*dati))) # trasposta dei dati, per facilità di stampa
-                for i in range(len(date)):
-                    print(date[i], dati_t[i])
+                stampa_dati(date, dati, [nomi_colonne_regioni[i] for i in indici_colonne])
 
             if stampa_grafico_regioni:
                 if grafici_regioni_singole:

@@ -128,22 +128,17 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
                 # plt.plot(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
                 # plt.legend(loc = "upper left")
                 stampa_grafico(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
-                # andamento settimanale
-                # sommo i dati a gruppi di 7 facendo in modo che l'ultimo gruppo sia sempre da 7 giorni,
-                # per fare ciò inverto la lista giornaliera, sommo a gruppi di 7 a partire dall'inizio,
-                # poi la inverto di nuovo
-                fig2 = plt.figure(1)	
-                daily = list(reversed(dati[i]))
-                weekly = [ sum(daily[x:x+7]) for x in range(0, len(daily), 7)]
-                weekly = list(reversed(weekly))
-                # date_settimanali = [ date[i] for i in range(len(date), 0, -7) ]
-                # print(date_settimanali)
-                plt.plot(weekly, label = nomi_colonne_nazionale[indici_colonne[i]] + " settimanale")
-                plt.legend(loc = "upper left")
                 
-                # stampa_grafico(date_settimanali, weekly, nomi_colonne_nazionale[indici_colonne[i]] + " settimanale")
+                # andamento settimanale
+                # ad ogni data, faccio la media dei 7 giorni precedenti
+                weekly_avg = [0 for x in range(len(date))]
 
-plt.close() # per evitare l'errore ValueError: view limit minimum -36893.8 is less than 1 and is an invalid Matplotlib date value. This often happens if you pass a non-datetime value to an axis that has datetime units
+                for j in range(6, len(date)):
+                    weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+                
+                stampa_grafico(date, weekly_avg, label = "settimanale")
+
+# plt.close() # per evitare l'errore ValueError: view limit minimum -36893.8 is less than 1 and is an invalid Matplotlib date value. This often happens if you pass a non-datetime value to an axis that has datetime units
 
 
 # ************          Regioni
@@ -222,6 +217,15 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             indici_colonne = [12] # nuovi_positivi
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
 
+             # andamento settimanale
+            # ad ogni data, faccio la media dei 7 giorni precedenti
+            weekly_avg = [0 for x in range(len(date))]
+
+            for j in range(6, len(date)):
+                weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+            
+
+
             if stampa_dati_regioni:
                 stampa_dati(date, dati, [nomi_colonne_regioni[i] for i in indici_colonne])
 
@@ -232,8 +236,10 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig.suptitle(regione, fontsize=20)
                     
                     for i in range(len(indici_colonne)):
-                        plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        plt.legend(loc = "upper left")
+                        # plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        # plt.legend(loc = "upper left")
+                        stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        stampa_grafico(date, weekly_avg, label = "settimanale")
                     plot_index += 1
 
                 else:
@@ -241,8 +247,10 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig = plt.figure(1)
                     fig.suptitle("Regioni", fontsize=20)
                     for i in range(len(indici_colonne)):
-                        plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]] + " " + regione)
-                        plt.legend(loc = "upper left")
+                        # plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        # plt.legend(loc = "upper left")
+                        stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        stampa_grafico(date, weekly_avg, label = "settimanale")
 
 
 if stampa_grafico_nazionale or stampa_grafico_regioni:

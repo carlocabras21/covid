@@ -1,5 +1,7 @@
 # python3
 
+# piccolo script che mi plotta l'andamento dei dati di contagio 
+
 # FARE ATTENZIONE ALLE COLONNE CON VALORI VUOTI.
 # il programma si interrompe, e per ora lo lascio così
 # in quanto quelle colonne non mi interessano. 
@@ -14,14 +16,14 @@ from ast import literal_eval
 
 # ************          Setup
 
-scarica_ultima_versione_dati = False
+scarica_ultima_versione_dati = True
 
 stampa_dati_nazionale        = True
 stampa_grafico_nazionale     = True
 
-stampa_dati_regioni          = False
-stampa_grafico_regioni       = False
-grafici_regioni_singole      = False
+stampa_dati_regioni          = True
+stampa_grafico_regioni       = True
+grafici_regioni_singole      = True
 
 
 
@@ -71,7 +73,9 @@ def get_array_dati(lines, indici_colonne, stampa_dati):
     '''
     return date, dati
 
-
+def stampa_grafico(x, y, label):
+    plt.plot(x, y, label = label)
+    plt.legend(loc = "upper left")
 
 # ************          Nazionale
 nomi_colonne_nazionale = ["data","stato","ricoverati_con_sintomi","terapia_intensiva","totale_ospedalizzati","isolamento_domiciliare","totale_positivi","variazione_totale_positivi","nuovi_positivi","dimessi_guariti","deceduti","casi_da_sospetto_diagnostico","casi_da_screening","totale_casi","tamponi","casi_testati","note"]
@@ -109,7 +113,8 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
     with open(filename) as f:
         lines = f.readlines()
 
-        indici_colonne = [13]
+        # indici_colonne = [13] # totale_casi
+        indici_colonne = [8] # nuovi_positivi
         date, dati = get_array_dati(lines, indici_colonne, stampa_dati_nazionale)
 
         if stampa_dati_nazionale:
@@ -120,8 +125,25 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
             fig.suptitle('Nazionale', fontsize=20)
 
             for i in range(len(indici_colonne)):
-                plt.plot(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
-                plt.legend()
+                # plt.plot(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
+                # plt.legend(loc = "upper left")
+                stampa_grafico(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
+                # andamento settimanale
+                # sommo i dati a gruppi di 7 facendo in modo che l'ultimo gruppo sia sempre da 7 giorni,
+                # per fare ciò inverto la lista giornaliera, sommo a gruppi di 7 a partire dall'inizio,
+                # poi la inverto di nuovo
+                fig2 = plt.figure(1)	
+                daily = list(reversed(dati[i]))
+                weekly = [ sum(daily[x:x+7]) for x in range(0, len(daily), 7)]
+                weekly = list(reversed(weekly))
+                # date_settimanali = [ date[i] for i in range(len(date), 0, -7) ]
+                # print(date_settimanali)
+                plt.plot(weekly, label = nomi_colonne_nazionale[indici_colonne[i]] + " settimanale")
+                plt.legend(loc = "upper left")
+                
+                # stampa_grafico(date_settimanali, weekly, nomi_colonne_nazionale[indici_colonne[i]] + " settimanale")
+
+plt.close() # per evitare l'errore ValueError: view limit minimum -36893.8 is less than 1 and is an invalid Matplotlib date value. This often happens if you pass a non-datetime value to an axis that has datetime units
 
 
 # ************          Regioni
@@ -196,7 +218,8 @@ if stampa_dati_regioni or stampa_grafico_regioni:
 
             lines = [line for line in all_lines if regione in line]
 
-            indici_colonne = [17]
+            # indici_colonne = [12, 17] # nuovi_positivi, totale_casi
+            indici_colonne = [12] # nuovi_positivi
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
 
             if stampa_dati_regioni:
@@ -204,12 +227,13 @@ if stampa_dati_regioni or stampa_grafico_regioni:
 
             if stampa_grafico_regioni:
                 if grafici_regioni_singole:
-                    # grafici regioni in finestre separate
+					# grafici regioni in finestre separate
                     fig = plt.figure(plot_index)
                     fig.suptitle(regione, fontsize=20)
+                    
                     for i in range(len(indici_colonne)):
                         plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        plt.legend()
+                        plt.legend(loc = "upper left")
                     plot_index += 1
 
                 else:
@@ -218,7 +242,7 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig.suptitle("Regioni", fontsize=20)
                     for i in range(len(indici_colonne)):
                         plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]] + " " + regione)
-                        plt.legend()
+                        plt.legend(loc = "upper left")
 
 
 if stampa_grafico_nazionale or stampa_grafico_regioni:

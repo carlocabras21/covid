@@ -54,23 +54,6 @@ def get_array_dati(lines, indici_colonne, stampa_dati):
         for i in range(n):
             dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
 
-    '''
-    for line in lines[1:]:
-        splitted_line = line.split(",")
-        
-        # controlla se in questa riga ci sono colonne con valori nulli
-        salta_questa_linea = False
-        for i in range(n):
-            elem = splitted_line[indici_colonne[i]]
-            if elem == "":
-                salta_questa_linea = True
-
-        if not salta_questa_linea:
-            date.append(to_date(splitted_line[0].split("T")[0]))
-            
-            for i in range(n):
-                dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
-    '''
     return date, dati
 
 def stampa_grafico(x, y, label):
@@ -139,7 +122,7 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
                 stampa_grafico(date, weekly_avg, label = "settimanale")
 
 # plt.close() # per evitare l'errore ValueError: view limit minimum -36893.8 is less than 1 and is an invalid Matplotlib date value. This often happens if you pass a non-datetime value to an axis that has datetime units
-
+# quell'errore non me lo dà più e lo script funiona
 
 # ************          Regioni
 nomi_colonne_regioni = ["data","stato","codice_regione","denominazione_regione","lat","long","ricoverati_con_sintomi","terapia_intensiva","totale_ospedalizzati","isolamento_domiciliare","totale_positivi","variazione_totale_positivi","nuovi_positivi","dimessi_guariti","deceduti","casi_da_sospetto_diagnostico","casi_da_screening","totale_casi","tamponi","casi_testati","note"]
@@ -217,7 +200,7 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             indici_colonne = [12] # nuovi_positivi
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
 
-             # andamento settimanale
+            # andamento settimanale
             # ad ogni data, faccio la media dei 7 giorni precedenti
             weekly_avg = [0 for x in range(len(date))]
 
@@ -236,8 +219,6 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig.suptitle(regione, fontsize=20)
                     
                     for i in range(len(indici_colonne)):
-                        # plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        # plt.legend(loc = "upper left")
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
                         stampa_grafico(date, weekly_avg, label = "settimanale")
                     plot_index += 1
@@ -247,8 +228,6 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig = plt.figure(1)
                     fig.suptitle("Regioni", fontsize=20)
                     for i in range(len(indici_colonne)):
-                        # plt.plot(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        # plt.legend(loc = "upper left")
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
                         stampa_grafico(date, weekly_avg, label = "settimanale")
 

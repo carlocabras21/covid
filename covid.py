@@ -25,6 +25,8 @@ stampa_dati_regioni          = True
 stampa_grafico_regioni       = True
 grafici_regioni_singole      = True
 
+andamento_settimanale        = True
+
 
 
 # ************          Funzioni
@@ -113,13 +115,14 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
                 stampa_grafico(date, dati[i], label = nomi_colonne_nazionale[indici_colonne[i]])
                 
                 # andamento settimanale
-                # ad ogni data, faccio la media dei 7 giorni precedenti
-                weekly_avg = [0 for x in range(len(date))]
+                if andamento_settimanale:
+                    # ad ogni data, faccio la media dei 7 giorni precedenti
+                    weekly_avg = [0 for x in range(len(date))]
 
-                for j in range(6, len(date)):
-                    weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
-                
-                stampa_grafico(date, weekly_avg, label = "settimanale")
+                    for j in range(6, len(date)):
+                        weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+                    
+                    stampa_grafico(date, weekly_avg, label = "settimanale")
 
 # plt.close() # per evitare l'errore ValueError: view limit minimum -36893.8 is less than 1 and is an invalid Matplotlib date value. This often happens if you pass a non-datetime value to an axis that has datetime units
 # quell'errore non me lo dà più e lo script funiona
@@ -201,11 +204,12 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
 
             # andamento settimanale
-            # ad ogni data, faccio la media dei 7 giorni precedenti
-            weekly_avg = [0 for x in range(len(date))]
+            if andamento_settimanale:
+                # ad ogni data, faccio la media dei 7 giorni precedenti
+                weekly_avg = [0 for x in range(len(date))]
 
-            for j in range(6, len(date)):
-                weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+                for j in range(6, len(date)):
+                    weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
             
 
 
@@ -220,7 +224,8 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     
                     for i in range(len(indici_colonne)):
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        stampa_grafico(date, weekly_avg, label = "settimanale")
+                        if andamento_settimanale:
+                            stampa_grafico(date, weekly_avg, label = "settimanale")
                     plot_index += 1
 
                 else:
@@ -229,7 +234,8 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                     fig.suptitle("Regioni", fontsize=20)
                     for i in range(len(indici_colonne)):
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
-                        stampa_grafico(date, weekly_avg, label = "settimanale")
+                        if andamento_settimanale:
+                            stampa_grafico(date, weekly_avg, label = "settimanale")
 
 
 if stampa_grafico_nazionale or stampa_grafico_regioni:

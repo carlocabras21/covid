@@ -221,17 +221,26 @@ if stampa_dati_regioni or stampa_grafico_regioni:
 					# grafici regioni in finestre separate
                     fig = plt.figure(plot_index)
                     fig.suptitle(regione, fontsize=20)
-                    
+
                     for i in range(len(indici_colonne)):
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        
                         if andamento_settimanale:
-                            stampa_grafico(date, weekly_avg, label = "settimanale")
+                            stampa_grafico(date, weekly_avg, label = "settimanale")                      
+
                     plot_index += 1
 
+                if regione == "Sardegna":
+                    plt.plot(date, [585 for i in range(len(date))], label = 'inc. zona rossa', color = 'r')    
+                    plt.legend(loc = "upper left")
+                    plt.plot(date, [117 for i in range(len(date))], label = 'inc. zona bianca', color = 'grey')    
+                    plt.legend(loc = "upper left")
+                   
                 else:
                     # grafici regioni nella stessa finestra
                     fig = plt.figure(1)
                     fig.suptitle("Regioni", fontsize=20)
+                    
                     for i in range(len(indici_colonne)):
                         stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
                         if andamento_settimanale:

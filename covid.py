@@ -23,7 +23,7 @@ stampa_grafico_nazionale     = True
 
 stampa_dati_regioni          = True
 stampa_grafico_regioni       = True
-grafici_regioni_singole      = True
+grafici_regioni_singole      = False
 
 andamento_settimanale        = True
 
@@ -59,7 +59,10 @@ def get_array_dati(lines, indici_colonne, stampa_dati):
     return date, dati
 
 def stampa_grafico(x, y, label):
-    plt.plot(x, y, label = label)
+    if label == "settimanale":
+        plt.plot(x, y, label = label)
+    else:
+        plt.scatter(x, y, label = label, s=2)
     plt.legend(loc = "upper left")
 
 # ************          Nazionale
@@ -120,7 +123,7 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
                     weekly_avg = [0 for x in range(len(date))]
 
                     for j in range(6, len(date)):
-                        weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+                        weekly_avg[j] = (sum(dati[i][j-3:j+4]))/7
                     
                     stampa_grafico(date, weekly_avg, label = "settimanale")
 
@@ -172,7 +175,7 @@ if stampa_dati_regioni or stampa_grafico_regioni:
     # regioni.append("Piemonte")
     # regioni.append("Puglia")
     regioni.append("Sardegna")
-    # regioni.append("Sicilia")
+    regioni.append("Sicilia")
     # regioni.append("Toscana")
     # regioni.append("Umbria")
     # regioni.append("Valle d'Aosta")
@@ -200,16 +203,23 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             lines = [line for line in all_lines if regione in line]
 
             # indici_colonne = [12, 17] # nuovi_positivi, totale_casi
-            indici_colonne = [12] # nuovi_positivi
+            indici_colonne = [12] # nuovi positivi
+            # indici_colonne = [14] # morti
             date, dati = get_array_dati(lines, indici_colonne, stampa_dati_regioni)
-
+            
+            # calcola la variazione dei morti
+            if 14 in indici_colonne:
+                morti_index = indici_colonne.index(14)
+                dati[morti_index] = [0] + [x - dati[morti_index][i - 1] for i, x in enumerate(dati[morti_index] )][1:]
+            
+            
             # andamento settimanale
             if andamento_settimanale:
                 # ad ogni data, faccio la media dei 7 giorni precedenti
                 weekly_avg = [0 for x in range(len(date))]
 
                 for j in range(6, len(date)):
-                    weekly_avg[j] = (sum(dati[i][j-6:j+1]))/7
+                    weekly_avg[j] = (sum(dati[i][j-3:j+4]))/7
             
 
 
@@ -229,22 +239,25 @@ if stampa_dati_regioni or stampa_grafico_regioni:
                             stampa_grafico(date, weekly_avg, label = "settimanale")                      
 
                     plot_index += 1
-
-                if regione == "Sardegna":
-                    plt.plot(date, [585 for i in range(len(date))], label = 'inc. zona rossa', color = 'r')    
-                    plt.legend(loc = "upper left")
-                    plt.plot(date, [117 for i in range(len(date))], label = 'inc. zona bianca', color = 'grey')    
-                    plt.legend(loc = "upper left")
-                   
                 else:
                     # grafici regioni nella stessa finestra
                     fig = plt.figure(1)
                     fig.suptitle("Regioni", fontsize=20)
                     
                     for i in range(len(indici_colonne)):
-                        stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]])
+                        stampa_grafico(date, dati[i], label = nomi_colonne_regioni[indici_colonne[i]] + " " + regione)
                         if andamento_settimanale:
                             stampa_grafico(date, weekly_avg, label = "settimanale")
+                            
+                            
+                            
+                if regione == "Sardegna" and 14 not in indici_colonne:
+                    plt.plot(date, [585 for i in range(len(date))], label = 'inc. zona rossa', color = 'r')    
+                    plt.legend(loc = "upper left")
+                    plt.plot(date, [117 for i in range(len(date))], label = 'inc. zona bianca', color = 'grey')    
+                    plt.legend(loc = "upper left")
+                   
+                
 
 
 if stampa_grafico_nazionale or stampa_grafico_regioni:

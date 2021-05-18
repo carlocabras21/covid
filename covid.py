@@ -23,10 +23,12 @@ stampa_grafico_nazionale     = True
 
 stampa_dati_regioni          = True
 stampa_grafico_regioni       = True
-grafici_regioni_singole      = False
+grafici_regioni_singole      = True
 
 andamento_settimanale        = True
 
+# data_inizio = "2020-02-24T18:00:00"
+data_inizio = "2021-01-01T18:00:00"
 
 
 # ************          Funzioni
@@ -50,14 +52,26 @@ def get_array_dati(lines, indici_colonne, stampa_dati):
 
     for line in lines[1:]:
         splitted_line = line.split(",")
+        
+        questa_data = to_date(splitted_line[0].split("T")[0])
+        
+        if questa_data >= to_date(data_inizio.split("T")[0]):
+            date.append(questa_data)
 
-        date.append(to_date(splitted_line[0].split("T")[0]))
-
-        for i in range(n):
-            dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
+            for i in range(n):
+                dati[i].append(literal_eval(splitted_line[indici_colonne[i]]))
 
     return date, dati
 
+def get_weekly(date, dati):
+    # ad ogni data, faccio la media dei 7 giorni precedenti
+    weekly_avg = [0 for x in range(len(date))]
+    dati = [0,0,0] + dati + [0,0,0]
+    for j in range(3, len(date)+3):
+        weekly_avg[j-3] = (sum(dati[j-3:j+4]))/7
+        
+    return weekly_avg
+    
 def stampa_grafico(x, y, label):
     if label == "settimanale":
         plt.plot(x, y, label = label)
@@ -120,10 +134,7 @@ if stampa_dati_nazionale or stampa_grafico_nazionale:
                 # andamento settimanale
                 if andamento_settimanale:
                     # ad ogni data, faccio la media dei 7 giorni precedenti
-                    weekly_avg = [0 for x in range(len(date))]
-
-                    for j in range(6, len(date)):
-                        weekly_avg[j] = (sum(dati[i][j-3:j+4]))/7
+                    weekly_avg = get_weekly(date, dati[i])
                     
                     stampa_grafico(date, weekly_avg, label = "settimanale")
 
@@ -175,7 +186,7 @@ if stampa_dati_regioni or stampa_grafico_regioni:
     # regioni.append("Piemonte")
     # regioni.append("Puglia")
     regioni.append("Sardegna")
-    regioni.append("Sicilia")
+    # regioni.append("Sicilia")
     # regioni.append("Toscana")
     # regioni.append("Umbria")
     # regioni.append("Valle d'Aosta")
@@ -216,10 +227,7 @@ if stampa_dati_regioni or stampa_grafico_regioni:
             # andamento settimanale
             if andamento_settimanale:
                 # ad ogni data, faccio la media dei 7 giorni precedenti
-                weekly_avg = [0 for x in range(len(date))]
-
-                for j in range(6, len(date)):
-                    weekly_avg[j] = (sum(dati[i][j-3:j+4]))/7
+                weekly_avg = get_weekly(date, dati[i])
             
 
 
